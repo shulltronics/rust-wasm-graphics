@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <title>WASM testing</title>
+        <script type="module">
+
+            import init from '../pkg/wasm_testing.js';
+            console.log("Starting wasm_load.js...");
+            async function run()
+            {
+                await init();
+            }
+            run();
+
+        </script>
+    </head>
+    <body>
+
+    </body>
+</html>
