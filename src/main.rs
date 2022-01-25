@@ -27,7 +27,7 @@ use embedded_graphics::{
 }; 
 
 // this is pub because it's called from the wasm module below
-pub async fn main() {
+pub fn main() {
     //println!("Welcome to Carsten's winit testing program.");
 
     #[cfg(target_arch = "wasm32")]
@@ -59,7 +59,7 @@ pub async fn main() {
         body.append_child(&canvas)
             .expect("Error appending canvas to HTML body :(");
 
-        let mut cd = CanvasDisplay::new(canvas);
+        let mut cd = CanvasDisplay::new(&canvas);
         log::info!("CanvasDisplay size is {} x {}", cd.width, cd.height);
 
         let circle = {
@@ -73,11 +73,12 @@ pub async fn main() {
         };
 
         let text = {
-            let style = MonoTextStyle::new(&FONT_10X20, Rgb888::new(255, 255, 0));
-            Text::new("hello Web Assembly!", Point::new(0, 0), style)
+            let style = MonoTextStyle::new(&FONT_10X20, Rgb888::BLACK);
+            Text::new("hello Web Assembly!", Point::new(0, 15), style)
         };
 
         circle.draw(&mut cd).unwrap();
+        text.draw(&mut cd).unwrap();
 
     }
 
@@ -116,7 +117,7 @@ mod wasm {
         console_log::init_with_level(log::Level::Debug).expect("Error initializing logger!");
         // run the program entry point from here
         log::info!("Running program entry point...");
-        block_on(super::main());
+        super::main();
     }
 
 }
