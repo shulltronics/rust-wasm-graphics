@@ -1,7 +1,7 @@
 [package]
 name = "wasm-testing"
 authors = ["Carsten Thue-Bludworth <carstentb@protonmail.com>"]
-version = "0.0.1"
+version = "0.0.2"
 edition = "2021"
 
 [lib]
@@ -13,22 +13,25 @@ web = ["wgpu/webgl"]
 
 [dependencies]
 console_error_panic_hook = "0.1.7"
-winit = "0.26.1"
-log = "0.4.14"
+winit = "0.27.5"
+log = "0.4.17"
 console_log = "0.2.0"
-futures = "0.3.0"
+futures = "0.3.25"
+# pixels = "0.10.0"
+# wgpu = "0.14.0"
 pixels = "0.9.0"
 wgpu = "0.12.0"
 embedded-graphics = "0.7.1"
 
+
 # Got this from the winit repo root Cargo.toml
-[target.'cfg(target_arch = "wasm32")'.dependencies.web_sys]
-package = "web-sys"
+# [target.'cfg(target_arch = "wasm32")'.dependencies.web_sys]
+[dependencies.web-sys]
 version = "0.3.22"
 features = [
     'Gpu',
     'console',
-    "AddEventListenerOptions",
+    'AddEventListenerOptions',
     'CssStyleDeclaration',
     'BeforeUnloadEvent',
     'Document',
@@ -52,8 +55,8 @@ features = [
 ]
 
 [target.'cfg(target_arch = "wasm32")'.dependencies.wasm-bindgen]
-version = "0.2.45"
+version = "0.2.83"
 
 
 [target.'cfg(target_arch = "wasm32")'.dev-dependencies]
-console_log = "0.2"
+console_log = "0.2.0"

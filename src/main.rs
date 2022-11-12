@@ -8,7 +8,6 @@ use winit::{
     dpi::LogicalSize,
 };
 
-// TODO: move ui logic to ui module
 use pixels::{
     Pixels,
     SurfaceTexture,
@@ -16,8 +15,13 @@ use pixels::{
 };
 
 mod ui;
+
+#[cfg(target_arch = "x86_64")]
+mod pixels_draw_target;
+
+#[cfg(target_arch = "wasm32")]
 mod canvas_display;
-use canvas_display::CanvasDisplay;
+
 use embedded_graphics::{
     prelude::*,
     primitives::{Circle, Rectangle, PrimitiveStyleBuilder},
@@ -28,7 +32,7 @@ use embedded_graphics::{
 
 // this is pub because it's called from the wasm module below
 pub fn main() {
-    //println!("Welcome to Carsten's winit testing program.");
+    println!("Welcome to Carsten's winit testing program.");
 
     #[cfg(target_arch = "wasm32")]
     {
@@ -37,8 +41,10 @@ pub fn main() {
     }
 
     ui::draw_text();
-
+    println!("2");
     let el = EventLoop::new();
+    // use winit_input_helper::WinitInputHelper;
+    // let mut input = WinitInputHelper::new();
     let window = WindowBuilder::new()
         .with_title("Carsten's aweseome winit/wasm window")
         .with_inner_size(LogicalSize::new(256, 256))
@@ -47,11 +53,44 @@ pub fn main() {
 
     log::info!("Window size is {} x {}", window.inner_size().width, window.inner_size().height);
 
+    /**************************************************************************
+    This is the setup if compiling for x86_64 machines
+    **************************************************************************/
+    #[cfg(target_arch = "x86_64")]
+    {
+        use pixels_draw_target::Pixelbuffer;
+        let mut pb = Pixelbuffer::new(window);
+        
+        let circle = {
+            let style = PrimitiveStyleBuilder::new()
+                .stroke_color(Rgb888::RED)
+                .stroke_width(1)
+                .fill_color(Rgb888::GREEN)
+                .build();
+            Circle::new(Point::new(10, 10), 50)
+                .into_styled(style)
+        };
+
+        let text = {
+            let style = MonoTextStyle::new(&FONT_10X20, Rgb888::WHITE);
+            Text::new("hello Web Assembly!", Point::new(0, 15), style)
+        };
+
+        circle.draw(&mut pb).unwrap();
+        text.draw(&mut pb).unwrap();
+
+    }
+
+    /**************************************************************************
+    This is the setup if compiling for web assembly
+    **************************************************************************/
     #[cfg(target_arch = "wasm32")]
     {   // here we initialize the wasm stuff
         use winit::platform::web::WindowExtWebSys;
+        use canvas_display::CanvasDisplay;
 
         let canvas = window.canvas();
+        let size = window.inner_size();
         let window = web_sys::window().unwrap();
         let document = window.document().unwrap();
         let body = document.body().unwrap();
@@ -82,12 +121,17 @@ pub fn main() {
 
     }
 
-    // now we run the event loop closure
+    /**************************************************************************
+    Now we run the event loop closure
+    **************************************************************************/
     el.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
 
         #[cfg(target_arch = "wasm32")]
-        //log::debug!("{:?}", event);
+        // log::debug!("{:?}", event);
+
+        #[cfg(target_arch = "x86_64")]
+        // println!("{:?}", event);
 
         match event {
             Event::WindowEvent {
@@ -103,10 +147,14 @@ pub fn main() {
             }
             _ => (),
         }
+        // window.request_redraw();
     });
     
 }
 
+/******************************************************************************
+When building for web assembly, call the main function after setting up other stuff
+******************************************************************************/
 #[cfg(target_arch = "wasm32")]
 mod wasm {
     use wasm_bindgen::prelude::*;

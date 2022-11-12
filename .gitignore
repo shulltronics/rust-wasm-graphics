@@ -1,3 +1,4 @@
 /target
+/app
 /pkg
-*.lock
+Cargo.lock
