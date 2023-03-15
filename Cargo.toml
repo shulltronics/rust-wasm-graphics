@@ -13,14 +13,14 @@ web = ["wgpu/webgl"]
 
 [dependencies]
 console_error_panic_hook = "0.1.7"
-winit = "0.27.5"
+winit = "0.28.2"
 log = "0.4.17"
 console_log = "0.2.0"
 futures = "0.3.25"
-# pixels = "0.10.0"
-# wgpu = "0.14.0"
-pixels = "0.9.0"
-wgpu = "0.12.0"
+pixels = "0.11.0"
+wgpu = "0.15.1"
+# pixels = "0.9.0"
+# wgpu = "0.12.0"
 embedded-graphics = "0.7.1"
 
 

@@ -59,7 +59,7 @@ pub fn main() {
     #[cfg(target_arch = "x86_64")]
     {
         use pixels_draw_target::Pixelbuffer;
-        let mut pb = Pixelbuffer::new(window);
+        let mut pb = Pixelbuffer::new(&window);
         
         let circle = {
             let style = PrimitiveStyleBuilder::new()
@@ -79,6 +79,35 @@ pub fn main() {
         circle.draw(&mut pb).unwrap();
         text.draw(&mut pb).unwrap();
 
+        /**************************************************************************
+        Now we run the event loop closure
+        **************************************************************************/
+        el.run(move |event, _, control_flow| {
+            control_flow.set_poll();
+            control_flow.set_wait();
+
+            match event {
+                Event::WindowEvent {
+                    event: WindowEvent::CloseRequested,
+                    window_id,
+                } if window_id == window.id() => control_flow.set_exit(),
+                Event::WindowEvent {
+                    event: WindowEvent::MouseInput {..},
+                    window_id,
+                } => {
+                    log::debug!("{:?}", event);
+                    println!("{:?}", event);
+                },
+                Event::MainEventsCleared => {
+                    window.request_redraw();
+                },
+                Event::RedrawRequested(_) => {
+                    pb.render();
+                },
+                _ => (),
+            }
+        });
+
     }
 
     /**************************************************************************
@@ -91,8 +120,8 @@ pub fn main() {
 
         let canvas = window.canvas();
         let size = window.inner_size();
-        let window = web_sys::window().unwrap();
-        let document = window.document().unwrap();
+        let web_window = web_sys::window().unwrap();
+        let document = web_window.document().unwrap();
         let body = document.body().unwrap();
 
         body.append_child(&canvas)
@@ -119,36 +148,36 @@ pub fn main() {
         circle.draw(&mut cd).unwrap();
         text.draw(&mut cd).unwrap();
 
-    }
+        /**************************************************************************
+        Now we run the event loop closure
+        **************************************************************************/
+        el.run(move |event, _, control_flow| {
+            control_flow.set_poll();
+            control_flow.set_wait();
 
-    /**************************************************************************
-    Now we run the event loop closure
-    **************************************************************************/
-    el.run(move |event, _, control_flow| {
-        *control_flow = ControlFlow::Wait;
-
-        #[cfg(target_arch = "wasm32")]
-        // log::debug!("{:?}", event);
-
-        #[cfg(target_arch = "x86_64")]
-        // println!("{:?}", event);
-
-        match event {
-            Event::WindowEvent {
-                event: WindowEvent::CloseRequested,
-                window_id,
-            } if window_id == window.id() => *control_flow = ControlFlow::Exit,
-            Event::WindowEvent {
-                event: WindowEvent::MouseInput {..},
-                window_id,
-            } => log::debug!("{:?}", event),
-            Event::MainEventsCleared => {
-                window.request_redraw();
+            match event {
+                Event::WindowEvent {
+                    event: WindowEvent::CloseRequested,
+                    window_id,
+                } if window_id == window.id() => control_flow.set_exit(),
+                Event::WindowEvent {
+                    event: WindowEvent::MouseInput {..},
+                    window_id,
+                } => {
+                    log::debug!("{:?}", event);
+                    println!("{:?}", event);
+                },
+                Event::MainEventsCleared => {
+                    window.request_redraw();
+                },
+                Event::RedrawRequested(_) => {
+                    //canvas.
+                },
+                _ => (),
             }
-            _ => (),
-        }
-        // window.request_redraw();
-    });
+        });
+
+    }
     
 }
 

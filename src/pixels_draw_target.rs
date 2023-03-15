@@ -19,14 +19,18 @@ use winit::window::Window;
 const BYTES_PER_PIXEL: usize = 4;
 
 impl Pixelbuffer {
-    pub fn new(window: Window) -> Pixelbuffer {
+    pub fn new(window: &Window) -> Pixelbuffer {
         let size = window.inner_size();
-        let st = SurfaceTexture::new(size.width, size.height, &window);
+        let st = SurfaceTexture::new(size.width, size.height, window);
         Self {
             width: size.width,
             height: size.height,
             pixels: Pixels::new(size.width, size.height, st).unwrap(),
         }
+    }
+
+    pub fn render(&self) {
+        self.pixels.render().unwrap();
     }
 }
 
@@ -38,7 +42,7 @@ impl DrawTarget for Pixelbuffer {
     where
         I: IntoIterator<Item = Pixel<Self::Color>>,
     {
-        let mut pxs = self.pixels.get_frame();
+        let mut pxs = self.pixels.get_frame_mut();
         for Pixel(coord, color) in pixels.into_iter() {
             // constrain coordinate to canvas area
             let (x, y) = (coord.x, coord.y);
@@ -56,10 +60,7 @@ impl DrawTarget for Pixelbuffer {
             }
         }
 
-        match self.pixels.render() {
-            Ok(_) => return Ok(()),
-            Err(_) => return Err(()),
-        };
+        Ok(())
 
     }
 }
